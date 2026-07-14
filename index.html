@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alerta Climática 2030</title>
+<style>
+:root{
+  --sky1:#0d4270;
+  --sky2:#4ca4c8;
+  --panel:#f8fcff;
+  --ink:#173451;
+  --yellow:#ffd65c;
+  --cyan:#74e6ef;
+  --green:#28af69;
+  --red:#e95864;
+  --soft:#d9e9f2;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;width:100%;height:100%;overflow:hidden;
+  font-family:"Trebuchet MS",Arial,sans-serif;
+  color:#fff;
+}
+body{
+  background:
+    linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)),
+    linear-gradient(160deg,var(--sky1),var(--sky2));
+}
+.cloud{
+  position:fixed;
+  background:rgba(255,255,255,.18);
+  border-radius:999px;
+  filter:blur(.3px);
+  z-index:0;
+}
+.cloud:before,.cloud:after{
+  content:"";position:absolute;background:inherit;border-radius:50%;
+}
+.c1{width:240px;height:55px;left:-50px;top:9%}
+.c1:before{width:95px;height:95px;left:52px;top:-45px}
+.c1:after{width:120px;height:120px;right:28px;top:-62px}
+.c2{width:270px;height:60px;right:-70px;bottom:10%}
+.c2:before{width:110px;height:110px;left:40px;top:-55px}
+.c2:after{width:135px;height:135px;right:28px;top:-72px}
+
+.app{
+  position:relative;z-index:2;
+  width:min(1140px,96vw);
+  height:min(700px,94vh);
+  margin:3vh auto;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  gap:12px;
+}
+header{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:16px;
+  align-items:center;
+}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{
+  width:66px;height:66px;border-radius:19px;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#ffdf65,#ffae36);
+  color:#183451;font-size:38px;
+  box-shadow:0 7px 0 rgba(0,0,0,.22);
+  transform:rotate(-3deg);
+}
+h1{font-size:clamp(27px,3vw,43px);line-height:1;margin:0}
+.sub{margin:6px 0 0;color:#e5f5ff;font-size:clamp(13px,1.4vw,18px)}
+.status{
+  min-width:285px;padding:11px 15px;border-radius:18px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.25);
+  backdrop-filter:blur(7px);
+}
+.statusline{display:flex;justify-content:space-between;gap:18px;font-weight:900;margin-bottom:8px}
+.progress{height:12px;border-radius:999px;background:rgba(0,0,0,.25);overflow:hidden}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,#ffe066,#ffae38);transition:.35s}
+
+main{
+  min-height:0;
+  display:grid;
+  grid-template-columns:265px 1fr;
+  gap:14px;
+}
+.sidebar{
+  border-radius:24px;
+  padding:18px;
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.22);
+  backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.mascot{
+  font-size:100px;text-align:center;
+  filter:drop-shadow(0 8px 4px rgba(0,0,0,.22));
+  animation:float 3.4s ease-in-out infinite;
+}
+@keyframes float{50%{transform:translateY(-8px) rotate(2deg)}}
+.mission,.tipbox{
+  border-radius:16px;
+  background:rgba(5,31,57,.44);
+  padding:13px;
+  line-height:1.4;
+}
+.mission{font-size:15px}
+.tipbox{font-size:13px;color:#e2f5ff;margin-top:12px}
+
+.card{
+  position:relative;overflow:hidden;
+  background:var(--panel);color:var(--ink);
+  border-radius:27px;padding:clamp(18px,2.4vw,34px);
+  box-shadow:0 13px 0 rgba(2,22,39,.28);
+  display:flex;flex-direction:column;justify-content:center;
+  min-height:0;
+}
+.card:before{
+  content:"";position:absolute;right:-65px;top:-68px;
+  width:190px;height:190px;border-radius:50%;
+  background:rgba(116,230,239,.2);
+}
+.category{
+  width:max-content;max-width:90%;
+  border-radius:999px;padding:7px 13px;
+  background:#e7f8fc;color:#24627b;
+  font-size:14px;font-weight:900;margin-bottom:12px;
+}
+.question{
+  font-size:clamp(21px,2.6vw,34px);
+  line-height:1.15;margin:0 0 18px;font-weight:900;
+  max-width:900px;
+}
+.answers{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+button{font:inherit;border:0;cursor:pointer}
+.answer{
+  min-height:70px;border-radius:17px;
+  padding:12px 16px;text-align:left;
+  display:flex;align-items:center;gap:11px;
+  background:#fff;color:var(--ink);
+  border:3px solid var(--soft);
+  box-shadow:0 5px 0 #afc7d7;
+  font-weight:900;transition:.12s;
+}
+.answer:hover{transform:translateY(-2px);border-color:var(--cyan)}
+.answer:active{transform:translateY(2px);box-shadow:0 2px 0 #afc7d7}
+.answer.correct{background:#e8fff2;border-color:var(--green);box-shadow:0 5px 0 #178c50}
+.answer.wrong{background:#fff0f2;border-color:var(--red);box-shadow:0 5px 0 #b93645}
+.answer:disabled{cursor:default}
+.icon{font-size:26px}
+.feedback{
+  display:none;min-height:54px;margin-top:16px;
+  border-radius:14px;padding:11px 14px;
+  align-items:center;justify-content:space-between;gap:12px;
+  font-weight:900;
+}
+.feedback.show{display:flex}
+.feedback.good{background:#e8fff2;color:#0c7d42}
+.feedback.bad{background:#fff0f2;color:#9f2637}
+.next{
+  border-radius:12px;padding:10px 17px;
+  background:var(--ink);color:#fff;font-weight:900;white-space:nowrap;
+}
+footer{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  font-size:14px;color:#e6f5ff;
+}
+.smallbtn{
+  border-radius:12px;padding:8px 13px;color:#fff;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.24);
+}
+.end{text-align:center}
+.end .big{font-size:88px;line-height:1}
+.end h2{font-size:clamp(31px,4vw,44px);margin:12px 0 8px}
+.end p{font-size:19px;line-height:1.45;max-width:680px;margin:0 auto 18px}
+.restart{
+  border-radius:15px;padding:14px 25px;
+  background:linear-gradient(145deg,#ffdf65,#ffae36);
+  color:#173451;font-weight:900;
+  box-shadow:0 6px 0 #d98b22;
+}
+@media(max-width:810px){
+  .app{height:96vh;margin:2vh auto}
+  header{grid-template-columns:1fr}
+  .status{min-width:0}
+  main{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .answer{min-height:61px}
+}
+@media(max-width:530px){
+  .answers{grid-template-columns:1fr}
+  .answer{min-height:50px}
+  .logo{width:52px;height:52px;font-size:30px}
+  .statusline{font-size:13px}
+  .question{margin-bottom:12px}
+  footer{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">🌦️</div>
+      <div>
+        <h1>Alerta Climática 2030</h1>
+        <p class="sub">Juego de refuerzo · UD 3 · El clima</p>
+      </div>
+    </div>
+    <div class="status">
+      <div class="statusline">
+        <span id="counter">Reto 1 de 12</span>
+        <span id="score">⭐ 0 · ❤️❤️❤️</span>
+      </div>
+      <div class="progress"><div id="bar"></div></div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="sidebar">
+      <div>
+        <div class="mascot" id="mascot">🧑‍🔬</div>
+        <div class="mission">
+          <strong>Misión:</strong><br>
+          Reparar la Estación Climática de Navarra resolviendo retos sobre el tiempo, los climas y la sostenibilidad.
+        </div>
+      </div>
+      <div class="tipbox">
+        Los errores muestran una pista científica. Aprende, continúa y consigue la insignia de Especialista del Clima.
+      </div>
+    </aside>
+
+    <section class="card" id="card">
+      <span class="category" id="category"></span>
+      <h2 class="question" id="question"></h2>
+      <div class="answers" id="answers"></div>
+      <div class="feedback" id="feedback">
+        <span id="feedbackText"></span>
+        <button class="next" id="next">Siguiente ➜</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Agentes 2030 · Consejo Climático de Navarra</span>
+    <button class="smallbtn" id="reset">Reiniciar partida</button>
+  </footer>
+</div>
+
+<script>
+const bank = [
+ {cat:"Tiempo y clima",q:"¿Cuál de estas frases se refiere al tiempo atmosférico?",a:["En Pamplona hoy llueve y hace 12 °C","En esta zona los inviernos suelen ser fríos","El clima se estudia durante muchos años","Las Bardenas tienen precipitaciones escasas"],c:0,tip:"El tiempo atmosférico describe cómo está la atmósfera en un lugar y momento concretos.",i:["🌧️","❄️","📆","🏜️"]},
+ {cat:"Tiempo y clima",q:"¿Qué es el clima?",a:["El estado del cielo durante una tarde","Las condiciones atmosféricas habituales de un lugar durante muchos años","La cantidad de lluvia de un solo día","La temperatura registrada a una hora concreta"],c:1,tip:"El clima se obtiene observando durante largos periodos la temperatura, las precipitaciones y otros elementos.",i:["🌤️","🗓️","🌧️","🌡️"]},
+ {cat:"Instrumentos meteorológicos",q:"¿Qué instrumento mide la temperatura del aire?",a:["Pluviómetro","Anemómetro","Termómetro","Veleta"],c:2,tip:"El termómetro mide la temperatura y suele expresarla en grados Celsius.",i:["🌧️","💨","🌡️","🧭"]},
+ {cat:"Instrumentos meteorológicos",q:"¿Para qué sirve el pluviómetro?",a:["Medir la cantidad de precipitación","Indicar la dirección del viento","Medir la velocidad del viento","Medir la presión atmosférica"],c:0,tip:"El pluviómetro recoge y mide la lluvia caída, normalmente en milímetros.",i:["🌧️","🧭","💨","📉"]},
+ {cat:"Instrumentos meteorológicos",q:"¿Qué instrumento mide la velocidad del viento?",a:["Veleta","Anemómetro","Termómetro","Pluviómetro"],c:1,tip:"El anemómetro mide la velocidad del viento; la veleta señala su dirección.",i:["🧭","💨","🌡️","🌧️"]},
+ {cat:"Climas del planeta",q:"¿Qué característica es habitual en los climas cálidos?",a:["Temperaturas elevadas durante todo el año","Temperaturas siempre bajo cero","Cuatro estaciones muy diferenciadas en todos los casos","Ausencia total de precipitaciones"],c:0,tip:"Los climas cálidos se localizan cerca del ecuador y presentan temperaturas altas.",i:["☀️","🧊","🍂","🚫"]},
+ {cat:"Climas del planeta",q:"¿Dónde se localizan principalmente los climas fríos?",a:["Cerca del ecuador","En las zonas polares y en montañas elevadas","Solo junto al mar","Únicamente en desiertos"],c:1,tip:"La latitud elevada y la altitud favorecen temperaturas más bajas.",i:["🌴","🏔️","🌊","🏜️"]},
+ {cat:"Climas del planeta",q:"Los climas templados suelen presentar…",a:["Temperaturas moderadas y estaciones diferenciadas","Calor extremo todo el año","Hielo permanente en todas partes","La misma temperatura cada día"],c:0,tip:"Los climas templados se sitúan entre las zonas cálidas y frías.",i:["🍂","🔥","🧊","📏"]},
+ {cat:"Factores del clima",q:"¿Por qué suele hacer más frío en una montaña que en una zona baja cercana?",a:["Porque aumenta la altitud","Porque disminuye la latitud","Porque hay menos relieve","Porque está más cerca del centro de la Tierra"],c:0,tip:"En general, la temperatura disminuye al aumentar la altitud.",i:["⛰️","🌍","➖","⬇️"]},
+ {cat:"Factores del clima",q:"¿Cómo influye la latitud en el clima?",a:["Las zonas cercanas al ecuador reciben más energía solar","Todas las latitudes reciben el mismo calor","Las zonas polares reciben más calor directo","La latitud solo modifica el viento"],c:0,tip:"Los rayos solares llegan más directos cerca del ecuador y más inclinados hacia los polos.",i:["☀️","🟰","🧊","💨"]},
+ {cat:"Factores del clima",q:"¿Qué efecto puede producir una cordillera sobre las precipitaciones?",a:["Puede frenar masas de aire y favorecer lluvia en una vertiente","Hace que nunca llueva","Elimina completamente el viento","No influye en el clima"],c:0,tip:"El relieve puede obligar al aire húmedo a ascender, enfriarse y producir precipitaciones.",i:["🏔️","🚫","🍃","❓"]},
+ {cat:"Climogramas",q:"En un climograma, ¿qué información se representa normalmente?",a:["Temperaturas y precipitaciones mensuales","Número de habitantes y carreteras","Altitud y longitud de los ríos","Solo la dirección del viento"],c:0,tip:"El climograma combina datos mensuales de temperatura y precipitación.",i:["📊","🏘️","🏞️","🧭"]},
+ {cat:"Clima y paisaje",q:"¿Qué relación es correcta?",a:["Un clima húmedo suele favorecer una vegetación más abundante","La vegetación no depende del clima","Los desiertos tienen lluvias muy abundantes","Todos los paisajes presentan las mismas plantas"],c:0,tip:"Temperatura y precipitación condicionan la vegetación y el paisaje.",i:["🌳","✂️","🏜️","🌱"]},
+ {cat:"Navarra bajo la lupa",q:"¿Cuál de estas comparaciones sobre Navarra es correcta?",a:["La Selva de Irati es más húmeda y verde que las Bardenas Reales","Las Bardenas son más húmedas que Irati","Irati es un desierto sin vegetación","Toda Navarra tiene exactamente el mismo clima"],c:0,tip:"Navarra presenta diversidad climática: el norte es generalmente más húmedo y la Ribera más seca.",i:["🌲","🏜️","🚫","🟰"]},
+ {cat:"Detectives científicos",q:"Un compañero afirma: «Como hoy nieva, el clima de Pamplona es polar». ¿Qué respuesta es correcta?",a:["Es incorrecto: un fenómeno de un día no determina el clima","Es correcto: una nevada convierte el clima en polar","Es correcto si la nieve dura una hora","El clima cambia cada mañana"],c:0,tip:"Para definir el clima se analizan datos de muchos años, no un único episodio meteorológico.",i:["🔎","🧊","⏱️","🌅"]},
+ {cat:"Sostenibilidad",q:"¿Cuál de estas acciones ayuda a frenar el cambio climático?",a:["Ahorrar energía y utilizar transportes sostenibles","Consumir más combustibles fósiles","Dejar luces encendidas sin necesidad","Eliminar zonas verdes"],c:0,tip:"Reducir emisiones, ahorrar energía y proteger la vegetación son acciones climáticamente responsables.",i:["🚲","⛽","💡","🪓"]},
+ {cat:"Sostenibilidad",q:"¿Cuál es una posible consecuencia del cambio climático?",a:["Aumento de fenómenos extremos y cambios en los ecosistemas","Desaparición completa del tiempo atmosférico","La misma temperatura en todo el planeta","El fin de las estaciones en un solo día"],c:0,tip:"El calentamiento global altera temperaturas, lluvias, ecosistemas y frecuencia de algunos eventos extremos.",i:["🌪️","🚫","🟰","📅"]},
+ {cat:"Predicción meteorológica",q:"Si el cielo se cubre de nubes oscuras y baja la presión, ¿qué fenómeno es probable?",a:["Precipitaciones o tormenta","Una sequía de varios años","Un cambio inmediato de clima","La desaparición del viento para siempre"],c:0,tip:"Las nubes oscuras y determinados cambios de presión pueden anunciar lluvia o tormenta.",i:["⛈️","🏜️","🌍","🚫"]}
+];
+
+let questions=[],index=0,points=0,lives=3,locked=false;
+const $=id=>document.getElementById(id);
+const q=$("question"),cat=$("category"),answers=$("answers"),feedback=$("feedback"),
+      feedbackText=$("feedbackText"),bar=$("bar"),counter=$("counter"),score=$("score"),
+      card=$("card"),mascot=$("mascot");
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function start(){
+  questions=shuffle(bank).slice(0,12);
+  index=0;points=0;lives=3;locked=false;
+  mascot.textContent="🧑‍🔬";
+  render();
+}
+function render(){
+  locked=false;
+  feedback.className="feedback";
+  const item=questions[index];
+  cat.textContent=item.cat;
+  q.textContent=item.q;
+  answers.innerHTML="";
+  item.a.forEach((text,i)=>{
+    const b=document.createElement("button");
+    b.className="answer";
+    b.innerHTML=`<span class="icon">${item.i[i]}</span><span>${text}</span>`;
+    b.onclick=()=>choose(i,b);
+    answers.appendChild(b);
+  });
+  counter.textContent=`Reto ${index+1} de ${questions.length}`;
+  bar.style.width=`${(index/questions.length)*100}%`;
+  updateScore();
+}
+function choose(i,b){
+  if(locked)return;
+  locked=true;
+  const item=questions[index];
+  const btns=[...document.querySelectorAll(".answer")];
+  btns.forEach(x=>x.disabled=true);
+  btns[item.c].classList.add("correct");
+  if(i===item.c){
+    points++;
+    b.classList.add("correct");
+    feedback.className="feedback show good";
+    feedbackText.textContent="✅ ¡Dato verificado! La estación recupera energía.";
+    mascot.textContent="👩‍🔬";
+  }else{
+    lives=Math.max(0,lives-1);
+    b.classList.add("wrong");
+    feedback.className="feedback show bad";
+    feedbackText.textContent="💡 "+item.tip;
+    mascot.textContent="🧑‍🚒";
+  }
+  updateScore();
+}
+function updateScore(){
+  score.textContent=`⭐ ${points} · ${"❤️".repeat(lives)}${"🤍".repeat(3-lives)}`;
+}
+function next(){
+  index++;
+  if(index>=questions.length) endGame();
+  else render();
+}
+function endGame(){
+  bar.style.width="100%";
+  counter.textContent="Misión completada";
+  let medal="🥉",title="Estación estabilizada",message="Has reforzado los conceptos esenciales. Repite la misión para seguir mejorando.";
+  if(points>=10){
+    medal="🏆";title="¡Consejo climático superado!";
+    message="Dominas los aprendizajes esenciales y consigues la insignia de Especialista del Clima 2030.";
+  }else if(points>=7){
+    medal="🥈";title="¡Gran investigación!";
+    message="Has recuperado casi toda la energía. Un nuevo intento puede llevarte a la insignia máxima.";
+  }
+  card.innerHTML=`
+    <div class="end">
+      <div class="big">${medal}</div>
+      <h2>${title}</h2>
+      <p>Resultado: <strong>${points} de ${questions.length} estrellas</strong>.<br>${message}</p>
+      <button class="restart" onclick="location.reload()">Jugar otra vez</button>
+    </div>`;
+}
+$("next").addEventListener("click",next);
+$("reset").addEventListener("click",start);
+start();
+</script>
+</body>
+</html>
